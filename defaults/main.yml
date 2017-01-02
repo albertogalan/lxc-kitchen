@@ -3,7 +3,7 @@
 packer_version: "0.0.1"
 user: agalan
 
-name: "nodejs"
+name: "nodejs4"
 template: ubuntu
 release: "xenial"
 service: nodejs
