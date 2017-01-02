@@ -3,22 +3,12 @@
 packer_version: "0.0.1"
 user: agalan
 
+name: "nodejs"
 template: ubuntu
-version: xenial
-
-lxc-kitchen_containers:
-  - name: "nodejs"
-    template: ubuntu
-    release: "xenial"
-    service: nodejs
-    user_bot: agalan
-    user_botgid: 1000
-    startauto: 1
-    destroy: no
-
-  # - name: desk
-  #   template: ubuntu
-  #   release: xenial
-
-
-  #  - { role: lxc-kitchen , name: "jupyter2",  release: "xenial", service: nodejs, user_bot: agalan, user_botgid: 1000,  startauto: 1, destroy: no }
+release: "xenial"
+service: nodejs
+user_bot: agalan
+user_botgid: 1000
+startauto: 1
+destroy: no
+country: cn
