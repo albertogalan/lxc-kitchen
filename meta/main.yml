@@ -12,12 +12,8 @@ galaxy_info:
 
   galaxy_tags: lxc-kitchen
 
-  # - name: Ubuntu
-  #   versions:
-  #    - trusty
-  #    - xenial
-  # - name: Debian
-  #  versions:
-  #  - all
-  #  - jessie
-  #  - wheezy
+
+  platforms:
+  - name: Ubuntu
+    versions:
+     - xenial
