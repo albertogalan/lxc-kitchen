@@ -6,15 +6,18 @@
     template: ubuntu
     state: started
     template_options: --release {{ release }}
+  tags: lxc-kitchen
 
 
 - name: Start {{ name }} container
   lxc_container:
     name: "{{ name }}"
     state: started
+  tags: lxc-kitchen
 
 - name: copy template sources.list
   template: src=sources.list dest=/var/lib/lxc/{{ name }}/rootfs/etc/apt/sources.list owner=root group=root mode="0644"
+  tags: lxc-kitchen
 
 - name: install {{ name }} minimal requirements to work with ansible
   lxc_container:
@@ -27,22 +30,28 @@
     container_config:
       - "lxc.mount.entry = /data         data     none bind,create=dir 0 0"
       - "lxc.start.auto = {{ startauto }}"
+  tags: lxc-kitchen
 
 - name: allow sudo commands in {{ name }}
   lineinfile:
     dest: /var/lib/lxc/{{ name }}/rootfs/etc/sudoers
     state: present
     line: '{{ user_bot }} ALL=(ALL) NOPASSWD: ALL'
+  tags: lxc-kitchen
 
 - name: add authorized_keys to {{ name }}
   file: path=/var/lib/lxc/{{ name }}/rootfs/home/ubuntu state=absent
+  tags: lxc-kitchen
 
 - name: add authorized_keys to {{ name }}
   file: path=/var/lib/lxc/{{ name }}/rootfs/home/agalan/.ssh/ mode=0700  owner={{ user_bot }} group={{ user_botgid }} state=directory
+  tags: lxc-kitchen
 
 - name: Copy SSH key to {{ name }}
   copy: src=files/key dest=/var/lib/lxc/{{ name }}/rootfs/home/agalan/.ssh/authorized_keys mode=0600  owner={{ user_bot }} group={{ user_botgid }}
+  tags: lxc-kitchen
 
 - name: install minimal requirements in {{ name }}
   become_user: agalan
   command: ssh {{name}}.lxc "sudo apt -y install python-simplejson"
+  tags: lxc-kitchen
