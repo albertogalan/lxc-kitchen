@@ -23,7 +23,7 @@
   lxc_container:
     name: "{{ name }}"
     container_command: |
-      deluser ubuntu #&&  adduser -disabled-password --gecos ""  --gid {{ user_botgid }}  {{ user_bot }}
+      deluser ubuntu &&  adduser -disabled-password --gecos ""  --gid {{ user_botgid }}  {{ user_bot }}
       useradd {{ user_bot }} -s /bin/bash -m -U
       echo -e "tempass\ntempass" | passwd {{ user_bot }}
       mkdir /home/{{ user_botgid }}/.ssh
@@ -49,6 +49,10 @@
 
 - name: Copy SSH key to {{ name }}
   copy: src=files/key dest=/var/lib/lxc/{{ name }}/rootfs/home/agalan/.ssh/authorized_keys mode=0600  owner={{ user_bot }} group={{ user_botgid }}
+  tags: running
+
+- name: apt update ssh {{user_bot}}@{{name}}.lxc "sudo apt update"
+  shell: ssh {{user_bot}}@{{name}}.lxc "sudo apt-get update"
   tags: running
 
 - name: install minimal requirements in {{ name }}
