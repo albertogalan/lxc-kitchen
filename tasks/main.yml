@@ -1,4 +1,14 @@
 ---
+- name: install necessary packages to execute lxc commands
+  pip: name=lxc-python2
+  tags: running
+
+- name: install necessary packages to execute lxc commands
+  apt:
+    name:
+      - lxc
+  tags: running
+
 - name: create container and add user and key
   lxc_container:
     name: "{{ name }}"
@@ -7,7 +17,6 @@
     state: started
     template_options: --release {{ release }}
   tags: running
-
 
 - name: Start {{ name }} container
   lxc_container:
@@ -24,20 +33,22 @@
     name: "{{ name }}"
     container_command: |
       deluser ubuntu &&  adduser -disabled-password --gecos ""  --gid {{ user_botgid }}  {{ user_bot }}
+      addgroup admin -gid 12000
       useradd {{ user_bot }} -s /bin/bash -m -U
       echo -e "tempass\ntempass" | passwd {{ user_bot }}
       mkdir /home/{{ user_botgid }}/.ssh
+      useradd {{ user_bot }} admin
     container_config:
       - "lxc.mount.entry = /data         data     none bind,create=dir 0 0"
+      - "lxc.mount.entry = /back1     back1 none bind,create=dir 0 0"
       - "lxc.start.auto = {{ startauto }}"
   tags: running
 
-- name: allow sudo commands in {{ name }}
-  lineinfile:
-    dest: /var/lib/lxc/{{ name }}/rootfs/etc/sudoers
-    state: present
-    line: '{{ user_bot }} ALL=(ALL) NOPASSWD: ALL'
-  tags: running
+- name: Add sudoers
+  copy: src=sudoers  dest=/etc/sudoers owner=root group=root  mode=644
+
+- name: Add sudoers
+  copy: src=sudoers  dest=/var/lib/lxc/{{ name }}/rootfs/etc/sudoers owner=root group=root mode=644
 
 - name: add authorized_keys to {{ name }}
   file: path=/var/lib/lxc/{{ name }}/rootfs/home/ubuntu state=absent
