@@ -6,6 +6,7 @@ user: agalan
 name: "nodejs4"
 template: ubuntu
 release: "xenial"
+template: "default"
 service: nodejs
 user_bot: agalan
 user_botgid: 1000
@@ -13,3 +14,4 @@ startauto: 1
 destroy: no
 country: cn
 data_group: btsync
+ubuntu_mirror: http://cn.archive.ubuntu.com/ubuntu/

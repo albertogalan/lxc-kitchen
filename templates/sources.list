@@ -1,5 +1,6 @@
 # newer versions of the distribution.
-deb http://{{country}}.archive.ubuntu.com/ubuntu/ xenial main restricted multiverse universe
-deb http://{{country}}.archive.ubuntu.com/ubuntu/ xenial-updates main restricted universe multiverse
-deb http://{{country}}.archive.ubuntu.com/ubuntu/ xenial-backports main restricted universe multiverse
-deb http://security.ubuntu.com/ubuntu xenial-security main restricted universe multiverse
+deb {{ubuntu_mirror}} {{ release }} main restricted universe multiverse 
+deb {{ubuntu_mirror}} {{ release }}-security main restricted universe multiverse
+deb {{ubuntu_mirror}} {{ release }}-updates main restricted universe multiverse
+deb {{ubuntu_mirror}} {{ release }}-proposed main restricted universe multiverse
+deb {{ubuntu_mirror}} {{ release }}-backports main restricted universe multiverse

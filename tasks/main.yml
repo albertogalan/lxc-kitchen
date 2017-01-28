@@ -9,64 +9,72 @@
       - lxc
   tags: running
 
+- name: Add sudoers to host
+  copy: src=sudoers  dest=/etc/sudoers owner=root group=root  mode=644
+
 - name: create container and add user and key
   lxc_container:
-    name: "{{ name }}"
+    name: "{{ names }}"
     container_log: true
     template: ubuntu
     state: started
     template_options: --release {{ release }}
   tags: running
 
-- name: Start {{ name }} container
+- name: Start {{ names }} container
   lxc_container:
-    name: "{{ name }}"
+    name: "{{ names }}"
     state: started
   tags: running
 
 - name: copy template sources.list
-  template: src=sources.list dest=/var/lib/lxc/{{ name }}/rootfs/etc/apt/sources.list owner=root group=root mode="0644"
+  template: src=sources.list dest=/var/lib/lxc/{{ names }}/rootfs/etc/apt/sources.list owner=root group=root mode="0644"
   tags: running
 
-- name: install {{ name }} minimal requirements to work with ansible
+- name: defining Templates
+  template: src=templates/{{item}}.conf.j2 dest=/usr/share/lxc/config/{{item}}.conf mode=0644 owner=root group=root
+  with_items:
+    - default
+    - basic
+  tags: templates
+
+- name: install {{ names }} minimal requirements to work with ansible
   lxc_container:
-    name: "{{ name }}"
+    name: "{{ names }}"
     container_command: |
       deluser ubuntu &&  adduser -disabled-password --gecos ""  --gid {{ user_botgid }}  {{ user_bot }}
       addgroup admin -gid 12000
       useradd {{ user_bot }} -s /bin/bash -m -U
       echo -e "tempass\ntempass" | passwd {{ user_bot }}
       mkdir /home/{{ user_botgid }}/.ssh
-      useradd {{ user_bot }} admin
+      adduser {{ user_bot }} admin
     container_config:
-      - "lxc.mount.entry = /data         data     none bind,create=dir 0 0"
-      - "lxc.mount.entry = /back1     back1 none bind,create=dir 0 0"
-      - "lxc.start.auto = {{ startauto }}"
+      - lxc.include = /usr/share/lxc/config/{{template}}.conf
   tags: running
+
+
+
 
 - name: Add sudoers
-  copy: src=sudoers  dest=/etc/sudoers owner=root group=root  mode=644
+  copy: src=sudoers  dest=/var/lib/lxc/{{ names }}/rootfs/etc/sudoers owner=root group=root mode=644
 
-- name: Add sudoers
-  copy: src=sudoers  dest=/var/lib/lxc/{{ name }}/rootfs/etc/sudoers owner=root group=root mode=644
-
-- name: add authorized_keys to {{ name }}
-  file: path=/var/lib/lxc/{{ name }}/rootfs/home/ubuntu state=absent
+- name: add authorized_keys to {{ names }}
+  file: path=/var/lib/lxc/{{ names }}/rootfs/home/ubuntu state=absent
   tags: running
 
-- name: add authorized_keys to {{ name }}
-  file: path=/var/lib/lxc/{{ name }}/rootfs/home/agalan/.ssh/ mode=0700  owner={{ user_bot }} group={{ user_botgid }} state=directory
+- name: add authorized_keys to {{ names }}
+  file: path=/var/lib/lxc/{{ names }}/rootfs/home/agalan/.ssh/ mode=0700  owner={{ user_bot }} group={{ user_botgid }} state=directory
   tags: running
 
-- name: Copy SSH key to {{ name }}
-  copy: src=files/key dest=/var/lib/lxc/{{ name }}/rootfs/home/agalan/.ssh/authorized_keys mode=0600  owner={{ user_bot }} group={{ user_botgid }}
+- name: Copy SSH key to {{ names }}
+  copy: src=files/key dest=/var/lib/lxc/{{ names }}/rootfs/home/agalan/.ssh/authorized_keys mode=0600  owner={{ user_bot }} group={{ user_botgid }}
   tags: running
 
 - debug:
-   msg: do if necessary ssh {{user_bot}}@{{name}}.lxc 'sudo apt-get update'
+   msg: do if necessary ssh {{user_bot}}@{{ names }}.lxc 'sudo apt-get update'
   tags: running
 
-- name: install minimal requirements in {{ name }}
+- name: install minimal requirements in {{ names }}
   become_user: agalan
-  command: ssh {{name}}.lxc "sudo apt -y install python-simplejson"
+  command: ssh {{ names }}.lxc "sudo apt -y install python-simplejson"
   tags: running
